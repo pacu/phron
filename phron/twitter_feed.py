@@ -4,7 +4,6 @@ import datetime
 def get_all_tweets(api=None, screen_name=None, include_rts=True):
     timeline = api.GetUserTimeline(screen_name=screen_name,include_rts=include_rts, count=200)
     earliest_tweet = min(timeline, key=lambda x: x.id).id
-    print("getting tweets before:", earliest_tweet)
 
     while True:
         tweets = api.GetUserTimeline(
@@ -16,7 +15,6 @@ def get_all_tweets(api=None, screen_name=None, include_rts=True):
             break
         else:
             earliest_tweet = new_earliest
-            print("getting tweets before:", earliest_tweet)
             timeline += tweets
 
     return timeline
@@ -25,7 +23,6 @@ def get_all_tweets(api=None, screen_name=None, include_rts=True):
 def get_tweets(api=None, screen_name=None, include_rts=True, from_timestamp=None, until_timestamp=None):
     timeline = []
     earliest_tweet = None
-    print("getting tweets before:", from_timestamp)
     
     while True:
         tweets = api.GetUserTimeline(
@@ -39,17 +36,16 @@ def get_tweets(api=None, screen_name=None, include_rts=True, from_timestamp=None
             break
         else:
             earliest_tweet = new_earliest
-            print("getting tweets before:", earliest_tweet)
             timeline += tweets
     return timeline
 
 
 from aenum import Enum
 class EnvironmentVariableKey(Enum):
-    CONSUMER_KEY = 'TWITTER_CONSUMER_KEY'
-    CONSUMER_SECRET = 'TWITTER_CONSUMER_SECRET'
-    ACCESS_TOKEN = 'TWITTER_ACCESS_TOKEN'
-    ACCESS_TOKEN_SECRET = 'TWITTER_ACCESS_TOKEN_SECRET'
+    CONSUMER_KEY = 'PHRON_TWITTER_CONSUMER_KEY'
+    CONSUMER_SECRET = 'PHRON_TWITTER_CONSUMER_SECRET'
+    ACCESS_TOKEN = 'PHRON_TWITTER_ACCESS_TOKEN'
+    ACCESS_TOKEN_SECRET = 'PHRON_TWITTER_ACCESS_TOKEN_SECRET'
 
 
 from functools import wraps
@@ -126,10 +122,18 @@ if __name__ == "__main__":
 
         if not screen_name: usage_and_fail(message='no screen name found')
         
-
-        json.dump(get_all_tweets(api=api,screen_name=screen_name), sys.stdout, ensure_ascii=False)
+        timeline = get_all_tweets(api=api,screen_name=screen_name)
+        s = '['
+        for i in range(len(timeline) - 1):
+            s += json.dumps(timeline[i]._json, ensure_ascii=False)
+            s +=','
+        s+= json.dumps(timeline[-1]._json, ensure_ascii=False)
+        s += ']'
+        sys.stdout.write(s)
 
     except EnvironmentError as err:
         usage_and_fail(message=err.message)
+    except ValueError as valueErr:
+        usage_and_fail(message=f'missing argument. {valueErr}')
     
 
