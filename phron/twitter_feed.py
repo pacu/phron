@@ -97,7 +97,12 @@ def build_api_from_environment():
     access_token = os.environ[EnvironmentVariableKey.ACCESS_TOKEN.value]
     access_token_secret = os.environ[EnvironmentVariableKey.ACCESS_TOKEN_SECRET.value]
 
-    return twitter.Api(consumer_key=consumer_key, consumer_secret=consumer_secret, access_token_key=access_token, access_token_secret=access_token_secret)
+    return twitter.Api(
+                        consumer_key=consumer_key, 
+                        consumer_secret=consumer_secret, 
+                        access_token_key=access_token, 
+                        access_token_secret=access_token_secret,
+                        tweet_mode='extended')
 
 
 def usage():
@@ -113,6 +118,8 @@ def usage_and_fail(message=None):
 if __name__ == "__main__":
     import sys
     import json
+    from twitter_feed_exporter import timeline_to_json
+    from twitter_feed_exporter import flattened_timeline_to_csv
     try: 
         api = build_api_from_environment()
         screen_name_index = sys.argv.index('--screen-name')
@@ -122,14 +129,20 @@ if __name__ == "__main__":
 
         if not screen_name: usage_and_fail(message='no screen name found')
         
-        timeline = get_all_tweets(api=api,screen_name=screen_name)
-        s = '['
-        for i in range(len(timeline) - 1):
-            s += json.dumps(timeline[i]._json, ensure_ascii=False)
-            s +=','
-        s+= json.dumps(timeline[-1]._json, ensure_ascii=False)
-        s += ']'
-        sys.stdout.write(s)
+        format = sys.argv[sys.argv.index('--output-format') + 1]
+
+        include_rts = '--include-retweets' in sys.argv
+        timeline = get_all_tweets(api=api,screen_name=screen_name, include_rts=include_rts)
+        
+        if format == 'json':
+            sys.stdout.write(timeline_to_json(timeline))
+        if format == 'csv':
+            if '--append-category' in sys.argv:
+                category = sys.argv[sys.argv.index('--append-category') + 1]
+                flattened_timeline_to_csv(timeline,sys.stdout, append_category=category)
+            else:
+                flattened_timeline_to_csv(timeline,sys.stdout)
+
 
     except EnvironmentError as err:
         usage_and_fail(message=err.message)
