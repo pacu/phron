@@ -3,9 +3,29 @@ Phronesis is Practical Wisdom
 
 Get tweets from feed and transform to various formats like CSV and JSON for Machine Learning purposes.
 
+# Requirements
+phron requires a twitter developer application to run. All Twitter API limitations apply to it. 
+
 # Usage
 
 ## console application
+
+### Setting up the API
+twitter_feed.py uses the python-twitter library to get the user's timeline. 
+
+to passing secrets thru the command line, the API object is initialized with Environment Variables
+
+On UNIX systems just add these to your bash or other terminal environtment of your liking
+
+**On .bash_profile**
+```` bash
+export PHRON_TWITTER_CONSUMER_KEY="someconsumerkey"
+export PHRON_TWITTER_CONSUMER_SECRET="someconsumersecret"
+export PHRON_TWITTER_ACCESS_TOKEN="appaccesstoken"
+export PHRON_TWITTER_ACCESS_TOKEN_SECRET="appaccesstokensecret"
+````
+
+## Supported output formats
 
 ### Comma Separated Values
 getting all tweets from TWITTER_USER timeline in a flattened CSV fromat
