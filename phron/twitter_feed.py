@@ -137,11 +137,17 @@ if __name__ == "__main__":
         if format == 'json':
             sys.stdout.write(timeline_to_json(timeline))
         if format == 'csv':
+            string_transform = None
+
+            if '--weka-friendly' in sys.argv:
+                from text_sanitizer import sanitize_weka
+                string_transform = sanitize_weka
+
+            category = None
             if '--append-category' in sys.argv:
                 category = sys.argv[sys.argv.index('--append-category') + 1]
-                flattened_timeline_to_csv(timeline,sys.stdout, append_category=category)
-            else:
-                flattened_timeline_to_csv(timeline,sys.stdout)
+            
+            flattened_timeline_to_csv(timeline,sys.stdout, append_category=category, string_transform=string_transform)
 
 
     except EnvironmentError as err:
