@@ -44,7 +44,7 @@ def flattened_timeline_to_csv(timeline, fileobj, append_category=None, tweet_mod
 
     """
     is_full_text = tweet_mode == 'extended'
-    csv.register_dialect('twitter', delimiter=',', quoting=csv.QUOTE_ALL)
+    csv.register_dialect('twitter', escapechar='\\', doublequote=False, quoting=csv.QUOTE_NONE)
     
     writer = csv.writer(fileobj,'twitter')
     if append_category == None:

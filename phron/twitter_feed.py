@@ -141,7 +141,7 @@ if __name__ == "__main__":
 
             if '--weka-friendly' in sys.argv:
                 from text_sanitizer import sanitize_weka
-                string_transform = sanitize_weka
+                string_transform = lambda x: sanitize_weka(x, escape_doublequote=False, escape_singlequote=False, remove_separator=",")
 
             category = None
             if '--append-category' in sys.argv:
