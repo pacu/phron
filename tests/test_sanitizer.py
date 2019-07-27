@@ -7,17 +7,30 @@ class TestSanitizer(unittest.TestCase):
         self.maxDiff = None
 
     def test_weka_sanitizer_quoting(self):
-        """ given a text with quotes, escape them """
+        """ given a text with quotes, remove them """
         given = '""No es posible que no le podamos garantizar dignidad a los que toda su vida trabajaron. Vamos a recomponer el ingreso de los jubilados. Y vamos a hacer una ley que diga que los jubilados no pagan los medicamentos y el Estado los va a subsidiar"'
         expect = "No es posible que no le podamos garantizar dignidad a los que toda su vida trabajaron. Vamos a recomponer el ingreso de los jubilados. Y vamos a hacer una ley que diga que los jubilados no pagan los medicamentos y el Estado los va a subsidiar"
         
+        self.assertEqual(expect,text_sanitizer.sanitize_weka(given,escape_doublequote=False),"Sanitized string is not what weka would expect it to be")
+
+    def test_weka_sanitizer_escape_double_quoting(self):
+        """ given a text with quotes, escape them """
+        given = '""No es posible que no le podamos garantizar dignidad a los que toda su vida trabajaron. Vamos a recomponer el ingreso de los jubilados. Y vamos a hacer una ley que diga que los jubilados no pagan los medicamentos y el Estado los va a subsidiar"'
+        expect = "\\\"\\\"No es posible que no le podamos garantizar dignidad a los que toda su vida trabajaron. Vamos a recomponer el ingreso de los jubilados. Y vamos a hacer una ley que diga que los jubilados no pagan los medicamentos y el Estado los va a subsidiar\\\""
+        
         self.assertEqual(expect,text_sanitizer.sanitize_weka(given),"Sanitized string is not what weka would expect it to be")
 
-    def test_weka_sanitizer_grave_accent(self):
+    def test_weka_sanitizer_escape_grave_accent(self):
         """ given a text with a grave accent, escape them """
         given = "that sweater is Chris'" 
-        expect = "that sweater is Chris"
+        expect = "that sweater is Chris\\\'"
         self.assertEqual(expect,text_sanitizer.sanitize_weka(given),"Sanitized string is not what weka would expect it to be")
+    
+    def test_weka_sanitizer_grave_accent(self):
+        """ given a text with a grave accent, remove them """
+        given = "that sweater is Chris'" 
+        expect = "that sweater is Chris"
+        self.assertEqual(expect,text_sanitizer.sanitize_weka(given,escape_singlequote=False),"Sanitized string is not what weka would expect it to be")
 
     def test_weka_sanitizer_newline(self):
         """given a text with new lines replace them with blank spaces"""
