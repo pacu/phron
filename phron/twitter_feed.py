@@ -106,7 +106,25 @@ def build_api_from_environment():
 
 
 def usage():
-    pass
+    """
+    twitter_feed.py extract all tweets from user timeline on extended format
+    usage: 
+    python twitter_feed.py --screen-name SCREEN_NAME --output-format OUTPUT_FORMAT [--append-category CATEGORY]  [--weka-friendly] [--include-retweets]
+   
+   Parameters:
+    
+    --screen-name (mandatory): twitter screen_name value
+    --include-retweets (optional): if your output includes RTs
+    --output-format (mandatory): json or csv
+
+
+    CSV options
+    ===========
+    --append-category (optional): add category column with the given value on every record
+    --weka-friendly (optional): sanitize text string for weka compatibility
+
+    """
+    print(usage.__doc__)
 
 def usage_and_fail(message=None):
     if message: print(message)
@@ -121,13 +139,14 @@ if __name__ == "__main__":
     from twitter_feed_exporter import timeline_to_json
     from twitter_feed_exporter import flattened_timeline_to_csv
     try: 
+        if '-h' in sys.argv or '--help' in sys.argv:
+            usage()
+            exit()
+
         api = build_api_from_environment()
-        screen_name_index = sys.argv.index('--screen-name')
-        if not screen_name_index: usage_and_fail(message='no screen name found')
+        screen_name_index = sys.argv.index('--screen-name')    
 
         screen_name = sys.argv[screen_name_index + 1]
-
-        if not screen_name: usage_and_fail(message='no screen name found')
         
         format = sys.argv[sys.argv.index('--output-format') + 1]
 
