@@ -63,4 +63,5 @@ if __name__ == "__main__":
             usage_and_fail(message='Unrecognized output format')
     
     # no other format than json for now
+    #use json response see https://github.com/bear/python-twitter/issues/603
     sys.stdout.write(messages)
