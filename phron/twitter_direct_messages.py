@@ -1,13 +1,13 @@
 import twitter
 
 
-def get_all_direct_messages(api=None):
+def get_all_direct_messages(api=None, force_json=False):
     # GetDirectMessages(since_id=None, max_id=None, count=None, include_entities=True, skip_status=False, full_text=False, page=None, return_json=False)
 
-    messages = api.GetDirectMessages(count=200,full_text=True)
+    messages = api.GetDirectMessages(count=200,full_text=True, return_json=force_json)
     earliest_tweet = min(messages, key=lambda x: x.id).id
     while True:
-        tweets = api.api.GetDirectMessages(count=200,full_text=True)(
+        tweets = api.api.GetDirectMessages(count=200,full_text=True,return_json=force_json)(
                 max_id=earliest_tweet, count=200
                 )
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     from twitter_feed_exporter import direct_messages_to_json
     api = build_api_from_environment()
 
-    messages = get_all_direct_messages(api=api)
+    messages = get_all_direct_messages(api=api, force_json=True)
 
     output_format_override = "--output-format" in sys.argv
 
@@ -63,4 +63,4 @@ if __name__ == "__main__":
             usage_and_fail(message='Unrecognized output format')
     
     # no other format than json for now
-    sys.stdout.write(direct_messages_to_json(messages))
+    sys.stdout.write(messages)
