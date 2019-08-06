@@ -69,3 +69,13 @@ def flattened_timeline_to_csv(timeline, fileobj, append_category=None, tweet_mod
                              text,
                              tweet.created_at,
                              append_category])
+
+def direct_messages_to_json(messages):
+    """ dump a python-twitter GetDirectMessages to a json array of DirectMessage Models """
+    s = '['
+    for i in range(len(messages) - 1):
+        s += json.dumps(messages[i]._json, ensure_ascii=False)
+        s +=','
+    s+= json.dumps(messages[-1]._json, ensure_ascii=False)
+    s += ']'
+    return s
