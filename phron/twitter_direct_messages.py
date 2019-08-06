@@ -2,7 +2,7 @@ import twitter
 
 
 def get_all_direct_messages(api=None, force_json=False):
-    # GetDirectMessages(since_id=None, max_id=None, count=None, include_entities=True, skip_status=False, full_text=False, page=None, return_json=False)
+    """ Get all direct messages from authenticated user """
 
     messages = api.GetDirectMessages(count=200,full_text=True, return_json=force_json)
     earliest_tweet = min(messages, key=lambda x: x.id).id
