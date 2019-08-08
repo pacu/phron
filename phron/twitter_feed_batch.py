@@ -1,4 +1,8 @@
 
+def extract_arguments(argv=None):
+        """ Extract arguments for this call """
+        return {}
+
 def usage():
     """
     twitter_feed_batch.py extract all tweets from the specified user timelines on extended format
@@ -25,6 +29,7 @@ def usage_and_fail(message=None):
     usage()
     import sys
     sys.exit(1)
-
+    
 if __name__ == "__main__":
     pass
+
