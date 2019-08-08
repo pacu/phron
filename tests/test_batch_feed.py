@@ -2,7 +2,7 @@ import unittest
 import sys
 from phron import twitter_feed_batch
 
-class TestSanitizer(unittest.TestCase):
+class TestBatchExtraction(unittest.TestCase):
     def test_extract_arguments(self):
         """given a set of parameters extract them"""
 
@@ -82,3 +82,23 @@ class TestSanitizer(unittest.TestCase):
                  }
         
         self.assertDictEqual(twitter_feed_batch.extract_arguments(argv=given),expect)
+    
+    ## private methods tests
+    def test_extract_argument_array_after_key(self):
+        """ given an array of arguments test if the trailing array is for key is parsed properly """
+
+        given = [sys.path, '--screen-names', 'name_1', 'name_2', 'name_3', 'name_4', '--output-format', 'csv', '--append-categories', 'A', 'B','C','D', '--weka-friendly']
+
+        expect = ['name_1', 'name_2', 'name_3', 'name_4']
+
+        self.assertEqual(twitter_feed_batch._extract_argument_array_after_key('--screen-names',argv=given),expect)
+    
+    def test_extract_argument_array_after_key_categories(self):
+        """ given an array of arguments test if the trailing array is for key is parsed properly """
+
+        given = [sys.path, '--screen-names', 'name_1', 'name_2', 'name_3', 'name_4', '--output-format', 'csv', '--append-categories', 'A', 'B','C','D', '--weka-friendly']
+
+        expect = ['A', 'B','C','D']
+
+        self.assertEqual(twitter_feed_batch._extract_argument_array_after_key('--append-categories',argv=given),expect)
+    
