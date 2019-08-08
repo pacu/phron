@@ -30,7 +30,7 @@ class _AcceptedArgumentKeys(Enum):
                     _AcceptedArgumentKeys.weka_friendly.value
                 ]
 
-def __no_argument_array_trailing_after_key(key):
+def _no_argument_array_trailing_after_key(key):
     return InvalidArgument(message=f'No argument array trailing after key {key}')
 
 def _extract_argument_array_after_key(key,argv):
@@ -39,34 +39,55 @@ def _extract_argument_array_after_key(key,argv):
     stop_words = _AcceptedArgumentKeys.key_list()
     argv_count = len(argv)
     start_index = argv.index(key) + 1
-    if start_index >= argv_count: raise __no_argument_array_trailing_after_key(key)
+    if start_index >= argv_count: raise _no_argument_array_trailing_after_key(key)
 
     for i in range(start_index, argv_count):
         if argv[i] in stop_words: break
         arg_array.append(argv[i])
     
-    if len(arg_array) == 0: raise __no_argument_array_trailing_after_key(key)
+    if len(arg_array) == 0: raise _no_argument_array_trailing_after_key(key)
 
     return arg_array
 
-def __extract_screen_names(argv):
+def _extract_screen_names(argv):
     return _extract_argument_array_after_key(_AcceptedArgumentKeys.screen_names.value,argv)
 
-def __extract_categories(argv):
+def _extract_categories(argv):
     return _extract_argument_array_after_key(_AcceptedArgumentKeys.append_categories.value,argv)
 
-def __validate_argument_dict(dict):
+# validations
+def _valid_screen_names_count(dict):   
+    return  _AcceptedArgumentKeys.screen_names.value in dict and len(dict[_AcceptedArgumentKeys.screen_names.value]) > 0 
+
+def _valid_categories_screen_name(dict):
+    if not _AcceptedArgumentKeys.append_categories.value in dict: return False
+    if not _AcceptedArgumentKeys.screen_names.value in dict: return False 
+
+    return len(dict[_AcceptedArgumentKeys.append_categories.value]) == len(dict[_AcceptedArgumentKeys.screen_names.value])
+
+def _valid_output_format(dict):
+    return _AcceptedArgumentKeys.output_format.value in dict and environment.OutputFormat.is_valid_format(dict[_AcceptedArgumentKeys.output_format.value])
+
+def _validate_argument_dict(dict):
+    if not _valid_screen_names_count(dict): raise InvalidArgument('Invalid screen names argument count')
+    if _AcceptedArgumentKeys.append_categories.value in dict and not _valid_categories_screen_name(dict): raise InvalidArgument('Invalid argument count between screen names and appended categories')
+    if not _valid_output_format(dict): raise InvalidArgument('Invalid or missing output format')
+    if not _AcceptedArgumentKeys.weka_friendly.value in dict: raise InvalidArgument(f'{_AcceptedArgumentKeys.weka_friendly.value} not specified')
+    if not _AcceptedArgumentKeys.include_retweets.value in dict: raise InvalidArgument(f'{_AcceptedArgumentKeys.include_retweets.value} not specified')
     return dict
+
+    
+# argument extraction 
 
 def extract_arguments(argv=None):
     """ Extract arguments for this call """
     dict = {}
     
     # extract screen names or fail
-    dict[_AcceptedArgumentKeys.screen_names.value] = __extract_screen_names(argv)
+    dict[_AcceptedArgumentKeys.screen_names.value] = _extract_screen_names(argv)
     
     if _AcceptedArgumentKeys.append_categories in argv:
-        dict[_AcceptedArgumentKeys.append_categories.value] = __extract_categories(argv)
+        dict[_AcceptedArgumentKeys.append_categories.value] = _extract_categories(argv)
     
     dict[_AcceptedArgumentKeys.weka_friendly.value] = _AcceptedArgumentKeys.weka_friendly.value in argv
     dict[_AcceptedArgumentKeys.include_retweets.value] = _AcceptedArgumentKeys.include_retweets.value in argv
@@ -75,10 +96,11 @@ def extract_arguments(argv=None):
         idx = argv.index(_AcceptedArgumentKeys.output_format.value)
         fmt = argv[idx + 1]
         if not environment.OutputFormat.is_valid_format(fmt): raise InvalidArgument(message=f'Invalid output format: \'{fmt}\'')
+        dict[_AcceptedArgumentKeys.output_format.value] = fmt
     else:
         dict[_AcceptedArgumentKeys.output_format.value] = environment.OutputFormat.CSV.value
       
-    return __validate_argument_dict(dict)
+    return _validate_argument_dict(dict)
 
 def usage():
     """
@@ -108,5 +130,11 @@ def usage_and_fail(message=None):
     sys.exit(1)
     
 if __name__ == "__main__":
-    pass
+    import sys
+    try:
+        arguments = extract_arguments(sys.argv)
+    except InvalidArgument as ive:
+        usage_and_fail(message=ive.message)
+
+
 

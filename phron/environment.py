@@ -16,7 +16,7 @@ class OutputFormat(Enum):
 
     @classmethod
     def is_valid_format(cls, fmt):
-        fmt == cls.CSV or fmt == cls.JSON
+       return fmt == cls.CSV.value or fmt == cls.JSON.value
 
             
 class Error(Exception):
