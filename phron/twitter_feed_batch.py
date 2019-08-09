@@ -30,6 +30,7 @@ class _AcceptedArgumentKeys(Enum):
                     _AcceptedArgumentKeys.weka_friendly.value
                 ]
 
+
 def _no_argument_array_trailing_after_key(key):
     return InvalidArgument(message=f'No argument array trailing after key {key}')
 
@@ -128,13 +129,71 @@ def usage_and_fail(message=None):
     usage()
     import sys
     sys.exit(1)
+
+def batch_extract_tweets(api, 
+                        screen_names, 
+                        append_categories=None, 
+                        include_retweets=False, 
+                        output_format=environment.OutputFormat.CSV, 
+                        string_transform=None):
+
+    usage_and_fail(message='unimplemented') 
+
+def _batch_extract_tweets(api, parameters):
+    """
+        batch extract a list of timelines from a twitter account.
+        convenience method to invoke from __main__
+
+        Parameters: 
+            api(twitter_api): an Initialized python-twitter api object
+
+            parameters(dict): a dictionary with the extracted parameters
+            in the form of: 
+
+            {
+                twitter_feed_batch._AcceptedArgumentKeys.screen_names.value : ['name_1', 'name_2', 'name_3', 'name_4'],
+                twitter_feed_batch._AcceptedArgumentKeys.weka_friendly.value : False,
+                twitter_feed_batch._AcceptedArgumentKeys.include_retweets.value : True,
+                twitter_feed_batch._AcceptedArgumentKeys.append_categories.value : ['A', 'B','C','D'],
+                twitter_feed_batch._AcceptedArgumentKeys.output_format.value : 'csv'
+            }
+
+            see tests for more examples
+    """
     
+    from text_sanitizer import sanitize_weka
+
+    weka_friendly = parameters[_AcceptedArgumentKeys.weka_friendly.value]
+    include_retweets = parameters[_AcceptedArgumentKeys.include_retweets]
+    output_format = parameters[_AcceptedArgumentKeys.output_format.value]
+    
+    screen_names = parameters[_AcceptedArgumentKeys.output_format.value]
+    append_categories = None
+    if _AcceptedArgumentKeys.append_categories.value in parameters:
+        append_categories = parameters[_AcceptedArgumentKeys.append_categories.value]
+    
+    transform_lambda = None
+
+    if weka_friendly:
+        transform_lambda = lambda x: sanitize_weka(x, escape_doublequote=False, escape_singlequote=False, remove_separator=",")
+    
+    return batch_extract_tweets(api=api,
+                                screen_names=screen_names,
+                                append_categories=append_categories,
+                                include_retweets=include_retweets,
+                                output_format=output_format,
+                                string_transform=transform_lambda
+                                )
+
 if __name__ == "__main__":
     import sys
+    from environment import build_api_from_environment
     try:
         arguments = extract_arguments(sys.argv)
     except InvalidArgument as ive:
         usage_and_fail(message=ive.message)
-
+    
+    _batch_extract_tweets(build_api_from_environment(),arguments)
+    
 
 
