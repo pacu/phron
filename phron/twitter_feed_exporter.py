@@ -12,6 +12,30 @@ def timeline_to_json(timeline):
     s += ']'
     return s
 
+def timeline_to_json_file(timeline, fileobj=None, partial=False,start=True, end=True):
+    """ 
+        dump a python-twitter UserTimeline to a JSON file containing array of Status Models
+
+        Parameters:
+            timeline(list): a sequence of Status items from python-twitter
+
+            fileobj(file): any object that supports the file API
+
+            partial(Boolean): whether this is a partial print, meaning that's either
+            the beginning of the array, (partial=True, start=True, end=False), the 
+            middle of it (partial=True, start=False, end=True), or the end of it
+            (partial=True, start=False, end=True).  If the given timeline list 
+            represents the whole array, pass partial=False and 'start' and 'end'
+            parameters will be ignored
+
+            start(Boolean): when partial is True, indicates whether this timeline
+            list is the beginning of the JSON array.
+
+            end(Boolean): when partial is True, indicates whether this timeline
+            list is the end of the JSON array.
+
+    """
+    pass
 
 def flattened_timeline_to_csv(timeline, fileobj, append_category=None, tweet_mode='extended', string_transform=None):
     """ 

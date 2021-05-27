@@ -1,15 +1,24 @@
 import twitter
 from aenum import Enum
 import os
-class EnvironmentVariableKey(Enum):
-    CONSUMER_KEY = 'PHRON_TWITTER_CONSUMER_KEY'
-    CONSUMER_SECRET = 'PHRON_TWITTER_CONSUMER_SECRET'
-    ACCESS_TOKEN = 'PHRON_TWITTER_ACCESS_TOKEN'
-    ACCESS_TOKEN_SECRET = 'PHRON_TWITTER_ACCESS_TOKEN_SECRET'
-
-
 from functools import wraps
 
+
+class EnvironmentVariableKey(Enum):
+        CONSUMER_KEY = 'PHRON_TWITTER_CONSUMER_KEY'
+        CONSUMER_SECRET = 'PHRON_TWITTER_CONSUMER_SECRET'
+        ACCESS_TOKEN = 'PHRON_TWITTER_ACCESS_TOKEN'
+        ACCESS_TOKEN_SECRET = 'PHRON_TWITTER_ACCESS_TOKEN_SECRET'
+    
+class OutputFormat(Enum):
+    CSV = 'csv'
+    JSON = 'json'
+
+    @classmethod
+    def is_valid_format(cls, fmt):
+       return fmt == cls.CSV.value or fmt == cls.JSON.value
+
+            
 class Error(Exception):
     pass
 
@@ -62,4 +71,4 @@ def build_api_from_environment():
                         access_token_key=access_token, 
                         access_token_secret=access_token_secret,
                         tweet_mode='extended')
-
+                        
